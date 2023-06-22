@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.memberview.SceneMember">
+    <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="193.0" minWidth="0.0" prefWidth="31.199999046325683" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="193.0" minWidth="10.0" prefWidth="154.80000095367433" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="467.0" minWidth="10.0" prefWidth="213.4" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="362.80000000000007" minWidth="10.0" prefWidth="222.19999999999993" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="253.60000000000002" minWidth="10.0" prefWidth="196.60000000000002" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.79999999999995" minWidth="10.0" prefWidth="33.60000000000002" />
+    </columnConstraints>
+    <rowConstraints>
+      <RowConstraints maxHeight="211.00000762939453" minHeight="5.199993801116932" prefHeight="5.199993801116932" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="194.0" minHeight="0.0" prefHeight="73.4" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="417.20000619888305" minHeight="1.0" prefHeight="311.2" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="357.6" minHeight="10.0" prefHeight="256.5999694824219" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="357.6" minHeight="10.0" prefHeight="38.60003051757815" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+        <Button mnemonicParsing="false" onAction="#onOrderClick" text="Order" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+        <Button layoutX="10.0" layoutY="47.0" mnemonicParsing="false" onAction="#onProgressClick" text="Progress" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+        <Button mnemonicParsing="false" onAction="#onComplainClick" text="Komplain" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+        <TableView prefHeight="37.0" prefWidth="83.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <columns>
+                <TableColumn prefWidth="75.0" text="C1" />
+                <TableColumn prefWidth="75.0" text="C2" />
+            </columns>
+        </TableView>
+      <Button mnemonicParsing="false" onAction="#onLogoutClick" text="Log Out" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+    </children>
+</GridPane>
