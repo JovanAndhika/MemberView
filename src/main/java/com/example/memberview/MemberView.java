@@ -6,6 +6,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class MemberView extends Application {
 
@@ -16,6 +19,11 @@ public class MemberView extends Application {
     final static String user = "root";
     final static String password = "";
 
+    public static Connection createDatabaseConnection() throws ClassNotFoundException, SQLException {
+        Class.forName(driver);
+        Connection con = DriverManager.getConnection(url, user, password);
+        return con;
+    }
     //Stage
     private Stage primaryStage;
     private Scene memberScene;

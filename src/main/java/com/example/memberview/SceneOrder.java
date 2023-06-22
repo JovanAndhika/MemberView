@@ -1,14 +1,20 @@
 package com.example.memberview;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+
 import java.net.URL;
+import java.sql.*;
+import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -20,9 +26,36 @@ public class SceneOrder implements Initializable {
     @FXML
     private TextField kuantitas;
     @FXML
-    private TableView <String> table_pesanan;
-
-    protected String jenisJasa;
+    private MenuItem cuci_setrika;
+    @FXML
+    private MenuItem cuci_lipat;
+    @FXML
+    private MenuItem laundry_sprei_selimut;
+    @FXML
+    private MenuItem pengharum_laundry;
+    @FXML
+    private MenuItem dryClean_gaunPesta;
+    @FXML
+    private MenuItem dryClean_jas;
+    @FXML
+    private TableView <OrderProperty> table_pesanan;
+    @FXML
+    TableColumn<OrderProperty, String> kolom_jenisJasa;
+    @FXML
+    TableColumn<OrderProperty, Integer> kolom_kuantitas;
+    @FXML
+    TableColumn<OrderProperty, Integer> kolom_harga;
+    @FXML
+    TableColumn<OrderProperty, Integer> kolom_subtotal;
+    ObservableList<OrderProperty> listNamaOrder = FXCollections.observableArrayList();
+    DecimalFormat df = new DecimalFormat("###,##0.00");
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
+        kolom_jenisJasa.setCellValueFactory(new PropertyValueFactory<OrderProperty, String>("kolom_jenisJasa"));
+        kolom_kuantitas.setCellValueFactory(new PropertyValueFactory<OrderProperty, Integer>("kolom_kuantitas"));
+        kolom_harga.setCellValueFactory(new PropertyValueFactory<OrderProperty, Integer>("kolom_harga"));
+        kolom_subtotal.setCellValueFactory(new PropertyValueFactory<OrderProperty, Integer>("kolom_subtotal"));
+    }
 
     @FXML
     protected void onCancelClick () {
@@ -38,27 +71,98 @@ public class SceneOrder implements Initializable {
         int jumlah = Integer.parseInt(kuantitas.getText());
         System.out.println(labelJenisJasa.getText());
         System.out.println(jumlah);
+
+        switch (labelJenisJasa.getText()){
+            case "Cuci Setrika":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 1,
+                        jumlah,
+                        50000,
+                        jumlah * 50000));
+                cuci_setrika.setDisable(true);
+                break;
+            case "Cuci Lipat":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 2,
+                        jumlah,
+                        30000,
+                        jumlah * 30000));
+                cuci_lipat.setDisable(true);
+                break;
+            case "Laundry Sprei / Selimut":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 3,
+                        jumlah,
+                        20000,
+                        jumlah * 20000));
+                laundry_sprei_selimut.setDisable(true);
+                break;
+            case "Dry Clean Gaun Pesta":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 4,
+                        jumlah,
+                        20000,
+                        jumlah * 20000));
+                dryClean_gaunPesta.setDisable(true);
+                break;
+            case "Pengharum Laundry":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 5,
+                        jumlah,
+                        1000,
+                        jumlah * 1000));
+                pengharum_laundry.setDisable(true);
+                break;
+            case "Dry Clean Jas":
+                listNamaOrder.add(new OrderProperty(labelJenisJasa.getText(), 6,
+                        jumlah,
+                        25000,
+                        jumlah * 25000));
+                dryClean_jas.setDisable(true);
+                break;
+        }
+
+        labelJenisJasa.setText("");
+        kuantitas.setText("");
+
+        table_pesanan.setItems(listNamaOrder);
+
+        int total = 0;
+        for (OrderProperty order:
+             listNamaOrder) {
+            total += order.getKolom_subtotal();
+        }
+        nominal.setText("Rp " + df.format(total));
     }
 
     @FXML
     protected void onMakeOrderClick (ActionEvent ae) {
         //ini belum ta buat  nyambung ke pembuatan nota sama pengurangan saldo nya.
-        //if (saldo >= nominal) {}
         Alert alert = new Alert(Alert.AlertType.NONE, "Make this order? Click OK to confrim.", ButtonType.OK, ButtonType.CANCEL);
         alert.setTitle("Order confirmation");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isEmpty()){
             System.out.println("Alert closed");
         } else if (result.get() == ButtonType.OK) {
-            labelJenisJasa.setText("");
-//            table_pesanan.getItems().clear();
-            kuantitas.setText("");
+            try{
+                Connection con = MemberView.createDatabaseConnection();
+                String query = "insert into nota (member_id) value (" + SceneMember.member_id +");";
+                PreparedStatement ps = con.prepareStatement(query);
+                ps.executeUpdate();
+
+                for (OrderProperty order:
+                     listNamaOrder) {
+                    query = String.format("INSERT INTO detail_pesanan (nota_id, jasa_id, jumlah, status) VALUES ((SELECT MAX(id) FROM nota), %d, %d, 0);", order.getKolom_jasaID(), order.getKolom_kuantitas());
+                    ps = con.prepareStatement(query);
+                    ps.executeUpdate();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 
             Alert alertConfirm = new Alert(Alert.AlertType.NONE, "Order made!", ButtonType.OK);
             alertConfirm.setTitle("Order made");
             Optional<ButtonType> resultConfirm = alertConfirm.showAndWait();
 
             if (resultConfirm.isEmpty()) {
+                table_pesanan.getItems().clear();
                 MemberView app = MemberView.getApplicationInstance();
                 Stage primStage = app.getPrimaryStage();
                 Scene memberScene = app.getMemberScene();
@@ -66,27 +170,21 @@ public class SceneOrder implements Initializable {
                 primStage.setScene(memberScene);
 
                 System.out.println("OK. Order is made.");
+
             } else if (resultConfirm.get() == ButtonType.OK) {
+                table_pesanan.getItems().clear();
                 MemberView app = MemberView.getApplicationInstance();
                 Stage primStage = app.getPrimaryStage();
                 Scene memberScene = app.getMemberScene();
                 primStage.setTitle("Member View");
                 primStage.setScene(memberScene);
-
                 System.out.println("OK. Order is made.");
             }
 
-            //saldo.setText(String.valueOf(Integer.parseInt(saldo.getText()) - Integer.parseInt(nominal.getText())));
         } else if (result.get() == ButtonType.CANCEL) {
             System.out.println("Order is cancelled.");
         }
-        /*
 
-        else {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Saldo tidak mencukupi!");
-
-         */
     }
     @FXML
     public void clickCuciSetrika(){
@@ -118,9 +216,5 @@ public class SceneOrder implements Initializable {
         labelJenisJasa.setText("Dry Clean Jas");
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-//        listJasa.getItems().addAll("Cuci Setrika", "Cuci Lipat", "Laundry Sprei/Selimut",
-//                "Pengharum Baju", "Dry Clean Gaun Pesta", "Dry Clean Jas");
-    }
+
 }

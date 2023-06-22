@@ -12,9 +12,9 @@ import java.util.ResourceBundle;
 
 public class SceneMember {
 
+
     @FXML
     private Button order;
-
     @FXML
     private Button progress;
     @FXML
@@ -24,6 +24,7 @@ public class SceneMember {
     @FXML
     private TableView<String> list_nota;
     public static int nota_id;
+    public static int member_id = 1;
 
     @FXML
     protected void onOrderClick() {
